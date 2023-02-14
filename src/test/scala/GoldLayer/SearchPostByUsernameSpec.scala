@@ -1,16 +1,20 @@
-import GoldLayer.ExtractMostLikedPostData.ExtractMostLikedPost
+package GoldLayer
+
+import GoldLayer.SearchPostByUsernameData.SearchPostByUsername
+import SilverLayer.{GraphImageData, GraphImageEdgeMediaToCaptionEdge, GraphImageEdgeMediaToCaptionNode, PostData, dimensionStruct, edge_media_preview_like, edge_media_to_caption, edge_media_to_comment, owner, resourcesStruct}
 import SilverLayer.ExtractPostsData.ExtractPosts
 import org.apache.spark.sql.SparkSession
 import org.scalatest.GivenWhenThen
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
-case class mostLikedPost(PostId : String, likes_count : Long)
-class ExtractMostLikedPostSpec extends AnyFlatSpec with Matchers with GivenWhenThen{
+case class SearchPost(username: String, PostId: String)
+class SearchPostByUsernameSpec extends AnyFlatSpec with Matchers with GivenWhenThen {
   implicit val spark: SparkSession = SparkSession
     .builder()
     .master("local[*]")
-    .appName("Profile test")
+    .appName("searching test")
     .getOrCreate()
+
   import spark.implicits._
 
   val likesforfirstpost = new edge_media_preview_like(983475)
@@ -53,7 +57,7 @@ class ExtractMostLikedPostSpec extends AnyFlatSpec with Matchers with GivenWhenT
     likesforsecondpost
     , edge_media_to_captionforfirstpost,
     edge_media_to_commentforfirstpost,
-    null, "2556864304565671217",
+    null, "2556864304565671219",
     false, null,
     "ACocvTf68f7v9RWXrCybgST5eBgZ4z9PWtSX/Xj/AHap6wy7EU/eJyPpjn9cYqVuM52inEUlWSX/ALa4jCADjHPNQfaH9qVVzHkMCc8r3wO+aacZ6GkB0Urfv/8AgNLexCaIjgMoyCfbnHrzWG97IG3DGcY6f/XpG1OZgV4weOlSUVvKfbvwdp6H1+nrUdbM8hkt4yfb+YrOxvY59aokgFO3n1pH4J+tNpgf/9k=",
     owner, "CN7zonEg1Ux",
@@ -62,20 +66,30 @@ class ExtractMostLikedPostSpec extends AnyFlatSpec with Matchers with GivenWhenT
     Seq(resourceData1, resourceData2, resourceData3, resourceData4, resourceData5),
     "https://instagram.ftun9-1.fna.fbcdn.net/v/t51.2885-15/sh0.08/e35/c240.0.960.960a/s640x640/175638912_746496265891329_6399286025486428978_n.jpg?tp=1&_nc_ht=instagram.ftun9-1.fna.fbcdn.net&_nc_cat=1&_nc_ohc=6ye9cBZFVWEAX8MRaVy&edm=APU89FABAAAA&ccb=7-4&oh=3620f2a89de0cc082a177e25655dfed8&oe=60CA6853&_nc_sid=86f79a&ig_cache_key=MjU1Njg2NDMwNDU2NTY3MTIxNw%3D%3D.2.c-ccb7-4",
     Seq("https://instagram.ftun9-1.fna.fbcdn.net/v/t51.2885-15/e35/s1080x1080/175638912_746496265891329_6399286025486428978_n.jpg?tp=1&_nc_ht=instagram.ftun9-1.fna.fbcdn.net&_nc_cat=1&_nc_ohc=6ye9cBZFVWEAX8MRaVy&edm=APU89FABAAAA&ccb=7-4&oh=f6c899260225fe952028a55a7f5860a4&oe=60CA4DF3&_nc_sid=86f79a&ig_cache_key=MjU1Njg2NDMwNDU2NTY3MTIxNw%3D%3D.2-ccb7-4"),
-    "phil.coutinho")
-
-  val expectedData = Seq(mostLikedPost("2556864304565671217",983475))
-  val initialData = Seq(PostData(Array(firstPost,secondPost))).toDF
+    "cristiano.ronaldo")
+  val expectedData = Seq(SearchPost("phil.coutinho", "2556864304565671217"))
+  val initialData = Seq(PostData(Array(firstPost, secondPost))).toDF
   val expectedResult = expectedData.toDF
 
-  "ExtractMostLikedPost" should "Extract the most liked Post data from input data" in {
+  "SearchPostByUsername" should "Search SilverLayer.Posts data by username from input data" in {
     Given("The input data")
     val postsData = ExtractPosts(initialData)
 
-    When("ExtractMostLikedPost is invoked")
-    val mostLikedPost = ExtractMostLikedPost(spark,postsData)
+    When("SearchPostByUsername is invoked")
+    val searchResults = SearchPostByUsername(spark, postsData, "phil.coutinho")
 
-    Then("the extracted Data should be returned")
-    mostLikedPost.collect() should contain theSameElementsAs expectedResult.collect()
+    Then("the Data should be returned")
+    searchResults.collect() should contain theSameElementsAs expectedResult.collect()
+  }
+
+  "SearchPostByUsername" should "give back an empty value when no post is found" in {
+    Given("The input data")
+    val postsData = ExtractPosts(initialData)
+
+    When("SearchPostByUsername is invoked")
+    val searchResults = SearchPostByUsername(spark, postsData, "no one")
+
+    Then("the Data should be returned")
+    searchResults.collect() should be(empty)
   }
 }

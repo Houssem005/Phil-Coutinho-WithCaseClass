@@ -1,10 +1,15 @@
+package SilverLayer
+
 import SilverLayer.ExtractCommentsData.ExtractComments
 import org.apache.spark.sql.SparkSession
 import org.scalatest.GivenWhenThen
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
-
-case class Comments ( comment_id: String , comment_text : String , created_at : Long , owner_id : String , profile_id : String, typename: String)
+case class CommentData(created_at: Long, id: String, owner: owner, text: String)
+case class Comment(data: Array[CommentData])
+case class GraphImage(__typename: String, comments: Comment, id: String)
+case class CommentsData(GraphImages: Array[GraphImage])
+case class Comments(comment_id: String, comment_text: String, created_at: Long, owner_id: String, profile_id: String, typename: String)
 class ExtractCommentsDataSpec extends AnyFlatSpec with Matchers with GivenWhenThen {
 
   implicit val spark: SparkSession = SparkSession
@@ -12,6 +17,7 @@ class ExtractCommentsDataSpec extends AnyFlatSpec with Matchers with GivenWhenTh
     .master("local[*]")
     .appName("Comments test")
     .getOrCreate()
+
   import spark.implicits._
 
   val owner = new owner("20740995")
@@ -26,11 +32,8 @@ class ExtractCommentsDataSpec extends AnyFlatSpec with Matchers with GivenWhenTh
     val commentsData = ExtractComments(comments)
 
     Then("the extracted Data should be returned")
-    val expectedData = Seq(Comments("18209883163069294","💪🏼💪🏼",1619023963, "20740995", "2556864304565671217","GraphImage"))
+    val expectedData = Seq(Comments("18209883163069294", "💪🏼💪🏼", 1619023963, "20740995", "2556864304565671217", "GraphImage"))
     val expectedResult = expectedData.toDF
     commentsData.as[Comments].collect() should contain theSameElementsAs expectedResult.as[Comments].collect()
   }
 }
-
-
-

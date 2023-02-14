@@ -1,21 +1,20 @@
-import SilverLayer.ExtractCommentsData.ExtractComments
+package GoldLayer
+
 import GoldLayer.ExtractMostCommentingUserData.ExtractMostCommentingUsers
+import SilverLayer.ExtractCommentsData.ExtractComments
+import SilverLayer.{Comment, CommentData, CommentsData, GraphImage, owner}
 import org.apache.spark.sql.SparkSession
 import org.scalatest.GivenWhenThen
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 
-case class CommentData(created_at: Long, id: String, owner: owner, text: String)
-case class Comment(data: Array[CommentData])
-case class GraphImage(__typename: String, comments: Comment, id: String)
-case class CommentsData(GraphImages: Array[GraphImage])
-case class mostCommentingUsers(owner_id : String, count : Long)
 
+case class mostCommentingUsers(owner_id : String, count : Long)
 class ExtractMostCommentingUserSpec extends AnyFlatSpec with Matchers with GivenWhenThen{
   implicit val spark: SparkSession = SparkSession
     .builder()
     .master("local[*]")
-    .appName("Profile with most commenting users test")
+    .appName("SilverLayer.Profile with most commenting users test")
     .getOrCreate()
   import spark.implicits._
 
@@ -38,7 +37,7 @@ class ExtractMostCommentingUserSpec extends AnyFlatSpec with Matchers with Given
   val commentsAndPostsAlternativeData = CommentsAndPostsAlternative.toDF
   val expectedResult = Seq(expectedData).toDF
 
-  "ExtractMostCommentingUsers" should "Extract The users that commented more than once on Posts " +
+  "ExtractMostCommentingUsers" should "Extract The users that commented more than once on SilverLayer.Posts " +
     "and how many times they commented from input data " in {
     Given("The input data")
     val commentsData = ExtractComments(CommentsAndPostsData)

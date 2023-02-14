@@ -1,5 +1,8 @@
+package GoldLayer
+
 import GoldLayer.ExtractLikesWithDateData.ExtractLikesWithDate
 import SilverLayer.ExtractPostsData.ExtractPosts
+import SilverLayer.{GraphImageData, GraphImageEdgeMediaToCaptionEdge, GraphImageEdgeMediaToCaptionNode, PostData, dimensionStruct, edge_media_preview_like, edge_media_to_caption, edge_media_to_comment, owner, resourcesStruct}
 import org.apache.spark.sql.SparkSession
 import org.scalatest.GivenWhenThen
 import org.scalatest.flatspec.AnyFlatSpec
@@ -9,7 +12,7 @@ class ExtractLikesByDateSpec extends AnyFlatSpec with Matchers with GivenWhenThe
   implicit val spark: SparkSession = SparkSession
     .builder()
     .master("local[*]")
-    .appName("Profile test")
+    .appName("SilverLayer.Profile test")
     .getOrCreate()
 
   import spark.implicits._

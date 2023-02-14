@@ -1,9 +1,10 @@
+package SilverLayer
+
 import SilverLayer.ExtractProfileData.ExtractProfiles
 import org.apache.spark.sql.SparkSession
 import org.scalatest.GivenWhenThen
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
-
 case class info(biography:String , followers_count : Long , following_count : Long , full_name : String,
                 id:String,is_business_account:Boolean,is_joined_recently:Boolean,
                 is_private:Boolean,posts_count:Long,profile_pic_url:String)
@@ -19,9 +20,8 @@ class ExtractProfileDataSpec extends AnyFlatSpec with Matchers with GivenWhenThe
     .master("local[*]")
     .appName("Profile test")
     .getOrCreate()
+
   import spark.implicits._
-
-
 
 
   "ExtractProfiles" should "Extract Profile Data from input data " in {

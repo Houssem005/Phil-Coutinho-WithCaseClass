@@ -1,15 +1,18 @@
+package GoldLayer
+
+import GoldLayer.OrderPostsData.orderPosts
 import SilverLayer.ExtractPostsData.ExtractPosts
-import GoldLayer.SearchPostByUsernameData.SearchPostByUsername
+import SilverLayer.{GraphImageData, GraphImageEdgeMediaToCaptionEdge, GraphImageEdgeMediaToCaptionNode, PostData, dimensionStruct, edge_media_preview_like, edge_media_to_caption, edge_media_to_comment, owner, resourcesStruct}
 import org.apache.spark.sql.SparkSession
 import org.scalatest.GivenWhenThen
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
-case class SearchPost(username: String, PostId: String)
-class SearchPostByUsernameSpec extends AnyFlatSpec with Matchers with GivenWhenThen {
+case class OrderedPosts(PostId: String, taken_as_timestamp:Long)
+class OrderPostsSpec extends AnyFlatSpec with Matchers with GivenWhenThen {
   implicit val spark: SparkSession = SparkSession
     .builder()
     .master("local[*]")
-    .appName("searching test")
+    .appName("order posts test")
     .getOrCreate()
 
   import spark.implicits._
@@ -34,7 +37,7 @@ class SearchPostByUsernameSpec extends AnyFlatSpec with Matchers with GivenWhenT
     dimensionDataforfirstpost,
     "https://instagram.ftun9-1.fna.fbcdn.net/v/t51.2885-15/e35/s1080x1080/175638912_746496265891329_6399286025486428978_n.jpg?tp=1&_nc_ht=instagram.ftun9-1.fna.fbcdn.net&_nc_cat=1&_nc_ohc=6ye9cBZFVWEAX8MRaVy&edm=APU89FABAAAA&ccb=7-4&oh=f6c899260225fe952028a55a7f5860a4&oe=60CA4DF3&_nc_sid=86f79a&ig_cache_key=MjU1Njg2NDMwNDU2NTY3MTIxNw%3D%3D.2-ccb7-4",
     likesforfirstpost, edge_media_to_captionforfirstpost, edge_media_to_commentforfirstpost,
-    null, "2556864304565671217",
+    null, "2556864304565671216",
     false,
     null,
     "ACocvTf68f7v9RWXrCybgST5eBgZ4z9PWtSX/Xj/AHap6wy7EU/eJyPpjn9cYqVuM52inEUlWSX/ALa4jCADjHPNQfaH9qVVzHkMCc8r3wO+aacZ6GkB0Urfv/8AgNLexCaIjgMoyCfbnHrzWG97IG3DGcY6f/XpG1OZgV4weOlSUVvKfbvwdp6H1+nrUdbM8hkt4yfb+YrOxvY59aokgFO3n1pH4J+tNpgf/9k=",
@@ -54,39 +57,28 @@ class SearchPostByUsernameSpec extends AnyFlatSpec with Matchers with GivenWhenT
     likesforsecondpost
     , edge_media_to_captionforfirstpost,
     edge_media_to_commentforfirstpost,
-    null, "2556864304565671219",
+    null, "2556864304565671217",
     false, null,
     "ACocvTf68f7v9RWXrCybgST5eBgZ4z9PWtSX/Xj/AHap6wy7EU/eJyPpjn9cYqVuM52inEUlWSX/ALa4jCADjHPNQfaH9qVVzHkMCc8r3wO+aacZ6GkB0Urfv/8AgNLexCaIjgMoyCfbnHrzWG97IG3DGcY6f/XpG1OZgV4weOlSUVvKfbvwdp6H1+nrUdbM8hkt4yfb+YrOxvY59aokgFO3n1pH4J+tNpgf/9k=",
     owner, "CN7zonEg1Ux",
     Seq("embrevetamodevolta", "gratidaoaDEUS", "focadoemotivado", "borapracima", "féemDEUS"),
-    1619021998,
+    2019021998,
     Seq(resourceData1, resourceData2, resourceData3, resourceData4, resourceData5),
     "https://instagram.ftun9-1.fna.fbcdn.net/v/t51.2885-15/sh0.08/e35/c240.0.960.960a/s640x640/175638912_746496265891329_6399286025486428978_n.jpg?tp=1&_nc_ht=instagram.ftun9-1.fna.fbcdn.net&_nc_cat=1&_nc_ohc=6ye9cBZFVWEAX8MRaVy&edm=APU89FABAAAA&ccb=7-4&oh=3620f2a89de0cc082a177e25655dfed8&oe=60CA6853&_nc_sid=86f79a&ig_cache_key=MjU1Njg2NDMwNDU2NTY3MTIxNw%3D%3D.2.c-ccb7-4",
     Seq("https://instagram.ftun9-1.fna.fbcdn.net/v/t51.2885-15/e35/s1080x1080/175638912_746496265891329_6399286025486428978_n.jpg?tp=1&_nc_ht=instagram.ftun9-1.fna.fbcdn.net&_nc_cat=1&_nc_ohc=6ye9cBZFVWEAX8MRaVy&edm=APU89FABAAAA&ccb=7-4&oh=f6c899260225fe952028a55a7f5860a4&oe=60CA4DF3&_nc_sid=86f79a&ig_cache_key=MjU1Njg2NDMwNDU2NTY3MTIxNw%3D%3D.2-ccb7-4"),
-    "cristiano.ronaldo")
-  val expectedData = Seq(SearchPost("phil.coutinho","2556864304565671217"))
-  val initialData = Seq(PostData(Array(firstPost, secondPost))).toDF
+    "phil.coutinho")
+  val expectedData = Seq(OrderedPosts("2556864304565671217", 2019021998), OrderedPosts("2556864304565671216", 1619021998))
   val expectedResult = expectedData.toDF
 
-  "SearchPostByUsername" should "Search Posts data by username from input data" in {
+  "OrderedPosts" should "Order SilverLayer.Posts data ascending by timestamp from input data" in {
     Given("The input data")
+    val initialData = Seq(PostData(Array(firstPost, secondPost))).toDF
     val postsData = ExtractPosts(initialData)
 
-    When("SearchPostByUsername is invoked")
-    val searchResults = SearchPostByUsername(spark, postsData, "phil.coutinho")
+    When("OrderedPosts is invoked")
+    val OrderedPosts = orderPosts(spark, postsData)
 
-    Then("the Data should be returned")
-    searchResults.collect() should contain theSameElementsAs expectedResult.collect()
-  }
-
-  "SearchPostByUsername" should "give back an empty value when no post is found" in {
-    Given("The input data")
-    val postsData = ExtractPosts(initialData)
-
-    When("SearchPostByUsername is invoked")
-    val searchResults = SearchPostByUsername(spark, postsData, "no one")
-
-    Then("the Data should be returned")
-    searchResults.collect() should be(empty)
+    Then("the Ordered Data should be returned")
+    OrderedPosts.collect() should contain theSameElementsAs expectedResult.collect()
   }
 }

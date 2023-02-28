@@ -53,5 +53,6 @@ object PhilCoutinhoMain {
     //Extract likes and dates data
     val LikesByDates = ExtractLikesWithDate(spark, postsData)
     LikesByDates.write.parquet("E:\\dataset\\phil.Coutinho\\GoldLayer\\LikesByDates")
+   //Modifications
   }
 }

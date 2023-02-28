@@ -34,7 +34,7 @@ object PhilCoutinhoMain {
     mostCommentingUsers.write.parquet("E:\\dataset\\phil.Coutinho\\GoldLayer\\MostCommentingUsers")
     //Extract Most Liked Post
     val mostLikedPost = ExtractMostLikedPost(spark,postsData)
-    mostLikedPost.write.parquet("E:\\dataset\\phil.Coutinho\\GoldLayer\\MostLikedPost")
+    mostLikedPost.write.mode("append").parquet("E:\\dataset\\phil.Coutinho\\GoldLayer\\MostLikedPost")
     //Extract profile With Most Followers
     val mostFollowedProfile = ExtractProfileWithMostFollowers(spark,profilesData)
     mostFollowedProfile.write.parquet("E:\\dataset\\phil.Coutinho\\GoldLayer\\MostFollowedProfile")

@@ -49,7 +49,7 @@ object PhilCoutinhoMain {
     SortedComments.write.parquet("E:\\dataset\\phil.Coutinho\\GoldLayer\\SortedComments")
     //Search Posts by username
     val searchResults = SearchPostByUsername(spark, postsData, "phil.coutinho")
-    searchResults.write.parquet("E:\\dataset\\phil.Coutinho\\GoldLayer\\searchResults")
+    searchResults.write.mode("append").parquet("E:\\dataset\\phil.Coutinho\\GoldLayer\\searchResults")
     //Extract likes and dates data(work I added before the merge of the pull request)
     val LikesByDates = ExtractLikesWithDate(spark, postsData)
     LikesByDates.write.mode("append").parquet("E:\\dataset\\phil.Coutinho\\GoldLayer\\LikesByDates")

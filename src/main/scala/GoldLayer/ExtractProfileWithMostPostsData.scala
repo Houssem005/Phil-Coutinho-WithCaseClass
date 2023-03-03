@@ -7,7 +7,7 @@ object ExtractProfileWithMostPostsData {
     initialData.createOrReplaceTempView("profile_view")
     val ProfileWithMostPosts = spark.sql(
       """
-        |SELECT full_name, MAX(posts_count) FROM profile_view""".stripMargin)
+        |SELECT full_name, MAX(posts_count) AS posts_count FROM profile_view GROUP BY full_name""".stripMargin)
     ProfileWithMostPosts
   }
 }

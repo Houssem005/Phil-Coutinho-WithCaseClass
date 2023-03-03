@@ -8,7 +8,7 @@ object ExtractProfileWithMostFollowersData {
     initialData.createOrReplaceTempView("profile_view")
     val ProfileWithMostFollowers = spark.sql(
       """
-        |SELECT full_name, MAX(followers_count) FROM profile_view""".stripMargin)
+        |SELECT full_name, MAX(followers_count) AS followers_count FROM profile_view GROUP BY full_name""".stripMargin)
     ProfileWithMostFollowers
   }
 }

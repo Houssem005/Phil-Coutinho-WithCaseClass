@@ -6,7 +6,7 @@ object ExtractMostLikedPostData {
     initialData.createOrReplaceTempView("posts_view")
     val mostLikedPost = spark.sql(
       """
-        |SELECT PostId, MAX(likes_count) FROM posts_view""".stripMargin)
+        |SELECT PostId, MAX(likes_count) AS likes_count FROM posts_view GROUP BY PostId""".stripMargin)
     mostLikedPost
   }
 }
